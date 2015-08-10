@@ -12,6 +12,10 @@ class Pergunta(models.Model):
     def foi_publicado_recentemente(self):
         return self.pub_date >= timezone.now() - timezone.timedelta(days=1)
 
+    foi_publicado_recentemente.admin_order_field = 'pub_date'
+    foi_publicado_recentemente.boolean = True
+    foi_publicado_recentemente.short_description = 'Foi publicado recentemente?'
+
 class Escolha(models.Model):
     pergunta = models.ForeignKey(Pergunta)
     escolha = models.CharField(max_length=200)
