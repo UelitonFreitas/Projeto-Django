@@ -1,0 +1,9 @@
+{% if lista_das_ultimas_perguntas %}
+    <ul>
+    {% for pergunta in lista_das_ultimas_perguntas %}
+        <li><a href="{% url 'pools:detalhe' pergunta.id %}">{{ pergunta.pergunta }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}

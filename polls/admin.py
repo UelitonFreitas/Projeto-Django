@@ -9,7 +9,7 @@ class EscolhaInline(admin.TabularInline):
 
 class PerguntaDoAdmin(admin.ModelAdmin):
 
-    list_display = ('pergunta', 'pub_date', 'foi_publicado_recentemente')
+    list_display = ('id', 'pergunta', 'pub_date', 'foi_publicado_recentemente')
 
     list_filter = ['pub_date']
 
