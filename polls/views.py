@@ -4,6 +4,7 @@ from django.shortcuts import render, get_object_or_404
 # Create your views here.
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template import loader, RequestContext
+from django.views import generic
 from polls.models import Pergunta, Escolha
 
 
@@ -11,26 +12,22 @@ def busca_tadas_as_perguntas_ordenadas_por_data():
     return Pergunta.objects.order_by('-pub_date')[:5]
 
 
-def index(request):
+class IndexView(generic.ListView):
 
-    lista_das_ultimas_perguntas = busca_tadas_as_perguntas_ordenadas_por_data()
+    template_name = 'polls/index.html'
+    context_object_name = 'lista_das_ultimas_perguntas'
 
-    contexto = {'lista_das_ultimas_perguntas': lista_das_ultimas_perguntas}
+    def get_queryset(self):
+        return Pergunta.objects.order_by('-pub_date')[:5]
 
-    #saida = ', '.join([p.pergunta_texto for p in lista_das_ultimas_perguntas])
+class DetalheView(generic.DetailView):
 
-    return render(request, 'polls/index.html', contexto)
+    model = Pergunta
+    template_name = 'polls/detalhe.html'
 
-def detalhes(request, pergunta_id):
-
-    pergunta = get_object_or_404(Pergunta, pk=pergunta_id)
-
-    return render(request, 'polls/detalhe.html', {'pergunta': pergunta})
-
-def resultados(request, pergunta_id):
-    #resposta = "Voce esta procurando resultados da pergunda %s."
-    pergunta = get_object_or_404(Pergunta, pk=pergunta_id)
-    return render(request, 'polls/resultados.html', {'pergunta': pergunta})
+class ResultadosView(generic.DetailView):
+    model = Pergunta
+    template_name = 'polls/resultados.html'
 
 def voto(request, pergunta_id):
     p = get_object_or_404(Pergunta, pk=pergunta_id)
