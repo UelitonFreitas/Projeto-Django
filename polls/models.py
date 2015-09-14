@@ -10,6 +10,10 @@ class Pergunta(models.Model):
         return self.pergunta
 
     def foi_publicado_recentemente(self):
+        agora = timezone.now()
+
+        return agora - timezone.timedelta(days=1) <= self.pub_date <= agora
+
         return self.pub_date >= timezone.now() - timezone.timedelta(days=1)
 
     foi_publicado_recentemente.admin_order_field = 'pub_date'

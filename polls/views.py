@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 
@@ -18,7 +19,9 @@ class IndexView(generic.ListView):
     context_object_name = 'lista_das_ultimas_perguntas'
 
     def get_queryset(self):
-        return Pergunta.objects.order_by('-pub_date')[:5]
+        return Pergunta.objects.filter(
+        pub_date__lte=timezone.now()
+    ).order_by('-pub_date')[:5]
 
 class DetalheView(generic.DetailView):
 
