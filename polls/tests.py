@@ -52,60 +52,89 @@ def cria_pergunta(texto, dias):
                                    pub_date=tempo)
 
 class TestaViewDaPergunta(TestCase):
+
     def testa_index_sem_perguntas(self):
         """
         Se nao existe pergunta, uma menssagem deve ser mostrada
         """
+
         respotas = self.client.get(reverse('polls:index'))
+
         self.assertEqual(respotas.status_code, 200)
         self.assertContains(respotas, "Nao ha perguntas")
         self.assertQuerysetEqual(respotas.context['lista_das_ultimas_perguntas'], [])
 
-    def test_index_view_with_a_past_question(self):
+    def testa_index_com_uma_pergunta_passada(self):
         """
-        Questions with a pub_date in the past should be displayed on the
-        index page.
+        Perguntas com datas de publicao passadas devem ser mostradas na view
         """
+
         cria_pergunta(texto="Pergunta passada.", dias=-30)
+
         response = self.client.get(reverse('polls:index'))
+
         self.assertQuerysetEqual(
             response.context['lista_das_ultimas_perguntas'],
             ['<Pergunta: Pergunta passada.>']
         )
 
-    '''def test_index_view_with_a_future_question(self):
+    def testa_index_com_uma_pergunta_futura(self):
         """
-        Questions with a pub_date in the future should not be displayed on
-        the index page.
+        Uma pergunta com data futura nao deve ser mostraa na view.
         """
-        create_question(question_text="Future question.", days=30)
-        response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, "No polls are available.",
+        cria_pergunta(texto="Pergunta futura.", dias=30)
+        resposta = self.client.get(reverse('polls:index'))
+        self.assertContains(resposta, "Nao ha perguntas",
                             status_code=200)
-        self.assertQuerysetEqual(response.context['latest_question_list'], [])
+        self.assertQuerysetEqual(resposta.context['lista_das_ultimas_perguntas'], [])
 
-    def test_index_view_with_future_question_and_past_question(self):
+    def testa_index_com_pergunta_futura_e_passada(self):
         """
-        Even if both past and future questions exist, only past questions
-        should be displayed.
+        Mesmo se uma pergunta existir, apenas perguntas passadas devem ser mostradas.
         """
-        create_question(question_text="Past question.", days=-30)
-        create_question(question_text="Future question.", days=30)
-        response = self.client.get(reverse('polls:index'))
+
+        cria_pergunta(texto="Pergunta Passada", dias=-30)
+        cria_pergunta(texto="Pergunta Futura", dias=30)
+
+        resposta = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(
-            response.context['latest_question_list'],
-            ['<Question: Past question.>']
+            resposta.context['lista_das_ultimas_perguntas'],
+            ['<Pergunta: Pergunta Passada>']
         )
 
-    def test_index_view_with_two_past_questions(self):
+
+    def testa_index_com_duas_perguntas_passadas(self):
         """
-        The questions index page may display multiple questions.
+        A index das perguntas deve retornar multiplas perguntas.
         """
-        create_question(question_text="Past question 1.", days=-30)
-        create_question(question_text="Past question 2.", days=-5)
-        response = self.client.get(reverse('polls:index'))
+
+        cria_pergunta(texto="Pergunta passada 1", dias=-30)
+        cria_pergunta(texto="Pergunta passada 2", dias=-5)
+
+        resposta = self.client.get(reverse('polls:index'))
+
         self.assertQuerysetEqual(
-            response.context['latest_question_list'],
-            ['<Question: Past question 2.>', '<Question: Past question 1.>']
+            resposta.context['lista_das_ultimas_perguntas'],
+            ['<Pergunta: Pergunta passada 2>', '<Pergunta: Pergunta passada 1>']
         )
-    '''
+
+    def testa_view_de_detalhe_de_uma_pergunta_com_data_futura(self):
+        """
+        O detalhamento de uma pergunta com data futura deve retornar o erro 404
+        """
+
+        pergunta_futura = cria_pergunta(texto="Pergunta futura", dias=30)
+        resposta = self.client.get(reverse('polls:detalhe', args=(pergunta_futura.id,)))
+        self.assertEqual(resposta.status_code, 404)
+
+    def testa_view_de_detalhe_com_uma_pergunta_passdata(self):
+        """
+        O detahe de uma pergunta com data de publicacao passada dever ser mostrada.
+        """
+
+        pergunta_passada = cria_pergunta(texto="Pergunta passda", dias=-5)
+
+        resposta = self.client.get(reverse('polls:detalhe', args=(pergunta_passada.id,)))
+
+        self.assertContains(resposta, pergunta_passada.pergunta, status_code=200)
+
